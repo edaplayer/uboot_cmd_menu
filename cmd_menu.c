@@ -305,7 +305,7 @@ static const menu_item_t lcdtype_menu_item={
 	, lcdtype_menu_list, ARRAY_SIZE(lcdtype_menu_list) };
 
 static const menu_item_t uart_mux_menu_item={
-	"SET LCDTYPE"
+	"UART MUX MENU"
 	, uart_mux_menu_list, ARRAY_SIZE(uart_mux_menu_list) };
 	
 	
@@ -325,8 +325,7 @@ static int parse_menu(const menu_item_t *x, int array_size)
 		{
 			printf("[%c] %s\n", menu[i].shortcut, menu[i].help);
 		}
-		key = getc();
-		key = tolower(key);
+		key = tolower(getc());
 		if(key == 'q')
 		{
 				return  0;
