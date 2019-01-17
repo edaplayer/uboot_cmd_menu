@@ -9,6 +9,10 @@
 #include <command.h>
 #include <linux/ctype.h>
 
+#ifndef CONFIG_MENU_NAME
+#define CONFIG_MENU_NAME	"SMDKV210"
+#endif
+
 #ifndef CONFIG_START_SYS
 #define CONFIG_START_SYS "run boot_args;nand read.i ${dtbloadaddr} dtb;" \
 								"nand read.i ${kloadaddr} kernel;bootz ${kloadaddr} - ${dtbloadaddr}"
@@ -62,7 +66,6 @@ static const menu_item_t tftp_menu_item;
 static const menu_item_t params_menu_item;
 static const menu_item_t lcdtype_menu_item;
 static const menu_item_t uart_mux_menu_item;
-
 
 extern char console_buffer[];
 extern int menu_readline(const char *const prompt);
