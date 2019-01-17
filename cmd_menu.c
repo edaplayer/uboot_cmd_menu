@@ -42,7 +42,7 @@ typedef struct menu_list{
 typedef struct menu_item{
 	const char *title;
 	struct menu_list *menu;
-	const int menu_arraysize; 
+	const int menu_arraysize;
 }menu_item_t;
 
 typedef struct params{
@@ -101,7 +101,7 @@ static void set_params(const params_t *params,int array_size)
 	char *env_pt = NULL;
 	for(i = 0; i < array_size; i++) {
 		printf("%s\n", params[i].promt);
-		env_pt = getenv(params[i].envname);	
+		env_pt = getenv(params[i].envname);
 		menu_readline(env_pt);
 		sprintf(cmd_buf, "setenv %s %s",params[i].envname,console_buffer);
 		run_command(cmd_buf, 0);
@@ -114,7 +114,7 @@ static void set_params(const params_t *params,int array_size)
 			printf("\n");
 			run_command("saveenv", 0);
 		}
-		else					
+		else
 			puts("save aborted\n");
 	}
 	else
@@ -291,15 +291,15 @@ static menu_list_t main_menu_list[] = {
 static const menu_item_t main_menu_item={
 	"SDCARD MENU"
 	, main_menu_list, ARRAY_SIZE(main_menu_list) };
-	
+
 static const menu_item_t tftp_menu_item={
 	"TFTP MENU"
 	, tftp_menu_list, ARRAY_SIZE(tftp_menu_list) };
-	
+
 static const menu_item_t params_menu_item={
 	"SET PARAMS"
 	, params_menu_list, ARRAY_SIZE(params_menu_list) };
-	
+
 static const menu_item_t lcdtype_menu_item={
 	"SET LCDTYPE"
 	, lcdtype_menu_list, ARRAY_SIZE(lcdtype_menu_list) };
@@ -307,8 +307,8 @@ static const menu_item_t lcdtype_menu_item={
 static const menu_item_t uart_mux_menu_item={
 	"UART MUX MENU"
 	, uart_mux_menu_list, ARRAY_SIZE(uart_mux_menu_list) };
-	
-	
+
+
 static int parse_menu(const menu_item_t *x, int array_size)
 {
 	int i;
@@ -335,7 +335,7 @@ static int parse_menu(const menu_item_t *x, int array_size)
 			if(key == menu[i].shortcut)
 			{
 				if(menu[i].next_menu_item !=NULL)
-					parse_menu(menu[i].next_menu_item, menu[i].next_menu_item->menu_arraysize);		
+					parse_menu(menu[i].next_menu_item, menu[i].next_menu_item->menu_arraysize);
 				else if (menu[i].cmd !=NULL) {
 					//printf("%s\n", menu[i].cmd);
 					run_command_list(menu[i].cmd, -1, 0);
@@ -350,7 +350,7 @@ static int parse_menu(const menu_item_t *x, int array_size)
 	}
 }
 
-int do_menu(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
+static int do_menu(cmd_tbl_t *cmdtp, int flag, int argc, char *const argv[])
 {
 	parse_menu(&main_menu_item, main_menu_item.menu_arraysize);
 	return 0;
