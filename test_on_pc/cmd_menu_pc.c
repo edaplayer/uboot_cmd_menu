@@ -11,29 +11,35 @@
 #ifdef CONFIG_PC
 #include <stdio.h>
 #include <ctype.h>
+#include <stdlib.h>
 #elif defined(CONFIG_UBOOT)
 #include <common.h>
 #include <command.h>
 #include <linux/ctype.h>
 #endif
 
+#ifndef CONFIG_MENU_NAME
+#define CONFIG_MENU_NAME	"SMDKV210"
+#endif
 #ifdef CONFIG_PC
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-typedef struct menu_list{
+//menu object
+typedef struct mobjet{
     const char shortcut;
     const char *help;
     const char *cmd;
     void (*func)(void);
-    const struct menu_item *next_menu_item;
-} menu_list_t;
+    const struct mset *next_menu;
+} mobject_t;
 
-typedef struct menu_item{
+//menu set
+typedef struct mset{
     const char *title;
-    struct menu_list *menu;
+    struct mobjet *menu;
     const int menu_arraysize;
-}menu_item_t;
+}mset_t;
 
 typedef struct params{
     const char *envname;
@@ -43,10 +49,10 @@ typedef struct params{
 static const params_t const tftp_params[];
 static void set_params(const params_t *params, int array_size);
 static void set_tftp_params(void);
-static menu_list_t tftp_menu_list[];
-static menu_list_t main_menu_list[];
-static const menu_item_t tftp_menu_item;
-static const menu_item_t main_menu_item;
+static mobject_t tftp_menu_list[];
+static mobject_t main_menu_list[];
+static const mset_t tftp_menu_item;
+static const mset_t main_menu_item;
 
 #if 0
 static void set_tftp_params(void)
@@ -121,46 +127,44 @@ static void set_tftp_params(void)
 #endif
 
 /****** tftp menu *******/
-static menu_list_t tftp_menu_list[] = {
+static mobject_t tftp_menu_list[] = {
     {'1', "submenu help 1", "echo menu1 cmd", NULL, NULL},
     {'2', "submenu help 2", "echo menu2 cmd", NULL, NULL},
     {'3', "Set TFTP parameters(serverip,ipaddr,imagename...)", NULL, set_tftp_params, NULL},
     {'q', "Return Main menu", NULL, NULL, NULL}
 };
 /****** main menu *******/
-static menu_list_t main_menu_list[] = {
+static mobject_t main_menu_list[] = {
     {'1', "Go to SD Download menu", NULL, NULL, NULL},
     {'2', "menu help 2", "echo menu2 cmd", NULL, NULL},
     {'3', "Go to Tftp Download menu", NULL, NULL, &tftp_menu_item},
     {'q', "Return console", NULL, NULL, NULL}
 };
 
-static const menu_item_t main_menu_item={
-    "MAIN menu"
-        , main_menu_list, ARRAY_SIZE(main_menu_list)};
+static const mset_t main_menu_item = {
+	"SDCARD MENU", main_menu_list, ARRAY_SIZE(main_menu_list) };
 
-static const menu_item_t tftp_menu_item={
-    "TFTP menu"
-        , tftp_menu_list, ARRAY_SIZE(tftp_menu_list)};
+static const mset_t tftp_menu_item = {
+	"TFTP MENU", tftp_menu_list, ARRAY_SIZE(tftp_menu_list) };
 
 int count = 0;
-static int parse_menu(const menu_item_t *x, int array_size)
+static int parse_menu(const mset_t *p_menu_item, int array_size)
 {
     int i;
     char key;
 
-    menu_list_t *menu = x->menu;
+    mobject_t *pmenu = p_menu_item->menu;
 
     while(1) {
-        if(x->title)
+        if(p_menu_item->title)
         {
             printf("############################\n");
-            printf("         %s\n", x->title);
+            printf("         %s\n", p_menu_item->title);
             printf("############################\n");
         }
         for(i = 0; i < array_size; i++)
         {
-            printf("[%c] %s\n", menu[i].shortcut, menu[i].help);
+            printf("[%c] %s\n", pmenu[i].shortcut, pmenu[i].help);
         }
 #ifdef CONFIG_PC
         key = getc(stdin);
@@ -181,18 +185,18 @@ static int parse_menu(const menu_item_t *x, int array_size)
         }
         for(i = 0; i < array_size; i++)
         {
-            if(key == menu[i].shortcut)
+            if(key == pmenu[i].shortcut)
             {
-                if(menu[i].next_menu_item !=NULL)
-                    parse_menu(menu[i].next_menu_item, menu[i].next_menu_item->menu_arraysize);
-                else if(menu[i].cmd !=NULL)
+                if(pmenu[i].next_menu !=NULL)
+                    parse_menu(pmenu[i].next_menu, pmenu[i].next_menu->menu_arraysize);
+                else if(pmenu[i].cmd !=NULL)
 #ifdef CONFIG_PC
-                    system(menu[i].cmd);
+                    system(pmenu[i].cmd);
 #else
-                    run_command_list(menu[i].cmd, -1, 0);
+                    run_command_list(pmenu[i].cmd, -1, 0);
 #endif
-                else if(menu[i].func !=NULL)
-                    menu[i].func();
+                else if(pmenu[i].func !=NULL)
+                    pmenu[i].func();
                 break;
             }
         }

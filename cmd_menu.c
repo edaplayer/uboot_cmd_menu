@@ -291,42 +291,36 @@ static menu_list_t main_menu_list[] = {
 	{'q', "Return console", NULL, NULL, NULL}
 };
 
-static const menu_item_t main_menu_item={
-	"SDCARD MENU"
-	, main_menu_list, ARRAY_SIZE(main_menu_list) };
+static const menu_item_t main_menu_item = {
+	"SDCARD MENU", main_menu_list, ARRAY_SIZE(main_menu_list) };
 
-static const menu_item_t tftp_menu_item={
-	"TFTP MENU"
-	, tftp_menu_list, ARRAY_SIZE(tftp_menu_list) };
+static const menu_item_t tftp_menu_item = {
+	"TFTP MENU", tftp_menu_list, ARRAY_SIZE(tftp_menu_list) };
 
-static const menu_item_t params_menu_item={
-	"SET PARAMS"
-	, params_menu_list, ARRAY_SIZE(params_menu_list) };
+static const menu_item_t params_menu_item = {
+	"SET PARAMS", params_menu_list, ARRAY_SIZE(params_menu_list) };
 
-static const menu_item_t lcdtype_menu_item={
-	"SET LCDTYPE"
-	, lcdtype_menu_list, ARRAY_SIZE(lcdtype_menu_list) };
+static const menu_item_t lcdtype_menu_item = {
+	"SET LCDTYPE", lcdtype_menu_list, ARRAY_SIZE(lcdtype_menu_list) };
 
-static const menu_item_t uart_mux_menu_item={
-	"UART MUX MENU"
-	, uart_mux_menu_list, ARRAY_SIZE(uart_mux_menu_list) };
+static const menu_item_t uart_mux_menu_item = {
+	"UART MUX MENU", uart_mux_menu_list, ARRAY_SIZE(uart_mux_menu_list) };
 
-
-static int parse_menu(const menu_item_t *x, int array_size)
+static int parse_menu(const menu_item_t *p_menu_item, int array_size)
 {
 	int i;
 	char key;
-	menu_list_t *menu = x->menu;
+	menu_list_t *pmenu = p_menu_item->menu;
 	while(1) {
-		if(x->title)
+		if(p_menu_item->title)
 		{
 			printf("\n#####   " CONFIG_MENU_NAME " U-boot MENU    #####\n");
-			printf(  "            %s\n", x->title);
+			printf(  "            %s\n", p_menu_item->title);
 			printf(  "###################################\n\n");
 		}
 		for(i = 0; i < array_size; i++)
 		{
-			printf("[%c] %s\n", menu[i].shortcut, menu[i].help);
+			printf("[%c] %s\n", pmenu[i].shortcut, pmenu[i].help);
 		}
 		key = tolower(getc());
 		if(key == 'q')
@@ -335,16 +329,16 @@ static int parse_menu(const menu_item_t *x, int array_size)
 		}
 		for(i = 0; i < array_size; i++)
 		{
-			if(key == menu[i].shortcut)
+			if(key == pmenu[i].shortcut)
 			{
-				if(menu[i].next_menu_item !=NULL)
-					parse_menu(menu[i].next_menu_item, menu[i].next_menu_item->menu_arraysize);
-				else if (menu[i].cmd !=NULL) {
-					//printf("%s\n", menu[i].cmd);
-					run_command_list(menu[i].cmd, -1, 0);
+				if(pmenu[i].next_menu_item !=NULL)
+					parse_menu(pmenu[i].next_menu_item, pmenu[i].next_menu_item->menu_arraysize);
+				else if (pmenu[i].cmd !=NULL) {
+					//printf("%s\n", pmenu[i].cmd);
+					run_command_list(pmenu[i].cmd, -1, 0);
 				}
-				else if (menu[i].func !=NULL)
-						menu[i].func();
+				else if (pmenu[i].func !=NULL)
+						pmenu[i].func();
 				else
 					printf("Nothing to do.\n");
 				break;
